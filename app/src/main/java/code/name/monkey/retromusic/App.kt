@@ -14,7 +14,6 @@
 
 package code.name.monkey.retromusic
 
-import android.widget.Toast
 import androidx.multidex.MultiDexApplication
 import code.name.monkey.appthemehelper.ThemeStore
 import code.name.monkey.appthemehelper.util.VersionUtils
@@ -22,13 +21,9 @@ import code.name.monkey.retromusic.appshortcuts.DynamicShortcutManager
 import code.name.monkey.retromusic.dagger.DaggerMusicComponent
 import code.name.monkey.retromusic.dagger.MusicComponent
 import code.name.monkey.retromusic.dagger.module.AppModule
-import com.anjlab.android.iab.v3.BillingProcessor
-import com.anjlab.android.iab.v3.TransactionDetails
 
 
 class App : MultiDexApplication() {
-
-    lateinit var billingProcessor: BillingProcessor
 
     override fun onCreate() {
        /* if (MissingSplitsManagerFactory.create(this).disableAppIfMissingRequiredSplits()) {
@@ -49,26 +44,11 @@ class App : MultiDexApplication() {
         }
 
         if (VersionUtils.hasNougatMR())
-            DynamicShortcutManager(this).initDynamicShortcuts()
-
-        // automatically restores purchases
-        billingProcessor = BillingProcessor(this, BuildConfig.GOOGLE_PLAY_LICENSING_KEY,
-                object : BillingProcessor.IBillingHandler {
-                    override fun onProductPurchased(productId: String, details: TransactionDetails?) {}
-
-                    override fun onPurchaseHistoryRestored() {
-                        Toast.makeText(this@App, R.string.restored_previous_purchase_please_restart, Toast.LENGTH_LONG).show();
-                    }
-
-                    override fun onBillingError(errorCode: Int, error: Throwable?) {}
-
-                    override fun onBillingInitialized() {}
-                })
+            DynamicShortcutManager(this).initDynamicShortcuts();
     }
 
     override fun onTerminate() {
         super.onTerminate()
-        billingProcessor.release()
     }
 
     companion object {
@@ -79,7 +59,7 @@ class App : MultiDexApplication() {
         }
 
         fun isProVersion(): Boolean {
-            return BuildConfig.DEBUG || instance?.billingProcessor!!.isPurchased(PRO_VERSION_PRODUCT_ID)
+            return true;
         }
 
         lateinit var musicComponent: MusicComponent
