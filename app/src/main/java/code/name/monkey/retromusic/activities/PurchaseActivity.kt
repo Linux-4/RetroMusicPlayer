@@ -3,7 +3,7 @@ package code.name.monkey.retromusic.activities
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
-import code.name.monkey.appthemehelper.ThemeStore
+import code.name.monkey.appthemehelper.util.ATHUtil
 import code.name.monkey.appthemehelper.util.MaterialUtil
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.activities.base.AbsBaseActivity
@@ -23,7 +23,7 @@ class PurchaseActivity : AbsBaseActivity() {
         setTaskDescriptionColorAuto()
         setLightNavigationBar(true)
 
-        val primaryColor = ThemeStore.primaryColor(this)
+        val primaryColor = ATHUtil.resolveColor(this, R.attr.colorPrimary)
         toolbar.setBackgroundColor(primaryColor)
         appBarLayout.setBackgroundColor(primaryColor)
 

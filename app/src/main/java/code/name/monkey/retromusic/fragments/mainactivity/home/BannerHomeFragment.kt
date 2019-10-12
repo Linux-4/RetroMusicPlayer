@@ -9,7 +9,6 @@ import android.view.*
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import code.name.monkey.appthemehelper.ThemeStore
 import code.name.monkey.appthemehelper.common.ATHToolbarActivity
 import code.name.monkey.appthemehelper.util.ColorUtil
 import code.name.monkey.appthemehelper.util.ToolbarContentTintHelper
@@ -29,9 +28,12 @@ import code.name.monkey.retromusic.model.Home
 import code.name.monkey.retromusic.model.smartplaylist.HistoryPlaylist
 import code.name.monkey.retromusic.model.smartplaylist.LastAddedPlaylist
 import code.name.monkey.retromusic.model.smartplaylist.MyTopTracksPlaylist
-import code.name.monkey.retromusic.mvp.presenter.HomePresenter
 import code.name.monkey.retromusic.mvp.presenter.HomeView
-import code.name.monkey.retromusic.util.*
+import code.name.monkey.retromusic.providers.interfaces.Repository
+import code.name.monkey.retromusic.util.Compressor
+import code.name.monkey.retromusic.util.NavigationUtil
+import code.name.monkey.retromusic.util.PreferenceUtil
+import code.name.monkey.retromusic.util.RetroColorUtil
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -46,17 +48,14 @@ import javax.inject.Inject
 
 class BannerHomeFragment : AbsMainActivityFragment(), MainActivityFragmentCallbacks, HomeView {
     private lateinit var homeAdapter: HomeAdapter
-
     @Inject
-    lateinit var homePresenter: HomePresenter
+    lateinit var repository: Repository
 
     private var disposable: CompositeDisposable = CompositeDisposable()
     private lateinit var toolbar: Toolbar
 
     override fun sections(sections: ArrayList<Home>) {
         val finalList = sections.sortedWith(compareBy { it.priority })
-        homeAdapter.swapData(finalList)
-
 
         if (sections.isEmpty()) {
             showEmptyView()
@@ -64,7 +63,6 @@ class BannerHomeFragment : AbsMainActivityFragment(), MainActivityFragmentCallba
             emptyContainer.hide()
         }
     }
-
 
     override fun onCreateView(inflater: LayoutInflater, viewGroup: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(if (PreferenceUtil.getInstance(requireContext()).isHomeBanner) R.layout.fragment_banner_home else R.layout.fragment_home, viewGroup, false)
@@ -126,33 +124,21 @@ class BannerHomeFragment : AbsMainActivityFragment(), MainActivityFragmentCallba
             NavigationUtil.goToPlaylistNew(requireActivity(), HistoryPlaylist(requireActivity()))
         }
 
-        contentContainer.setBackgroundColor(ThemeStore.primaryColor(requireContext()))
-
         setupToolbar()
-        checkPadding()
 
         userImage.setOnClickListener {
             val options = ActivityOptions.makeSceneTransitionAnimation(mainActivity, userImage, getString(R.string.transition_user_image))
             NavigationUtil.goToUserInfo(requireActivity(), options)
         }
-        titleWelcome.setTextColor(ThemeStore.textColorPrimary(requireContext()))
         titleWelcome.text = String.format("%s", PreferenceUtil.getInstance(requireContext()).userName)
 
         App.musicComponent.inject(this)
-        homePresenter.attachView(this)
-        homePresenter.loadSections()
-
-        homeAdapter = HomeAdapter(mainActivity, ArrayList(), displayMetrics)
+        homeAdapter = HomeAdapter(mainActivity, displayMetrics, repository)
 
         recyclerView.apply {
             layoutManager = LinearLayoutManager(mainActivity)
             adapter = homeAdapter
         }
-    }
-
-    private fun checkPadding() {
-        val marginSpan = DensityUtil.dip2px(requireContext(), 52f)
-        (recyclerView.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin = (marginSpan * 2.3f).toInt()
     }
 
     private fun toolbarColor(): Int {
@@ -190,23 +176,11 @@ class BannerHomeFragment : AbsMainActivityFragment(), MainActivityFragmentCallba
     override fun onDestroyView() {
         super.onDestroyView()
         disposable.dispose()
-        homePresenter.detachView()
     }
 
     override fun showEmptyView() {
         emptyContainer.show()
     }
-
-    override fun onServiceConnected() {
-        super.onServiceConnected()
-        checkPadding()
-    }
-
-    override fun onQueueChanged() {
-        super.onQueueChanged()
-        checkPadding()
-    }
-
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)

@@ -31,17 +31,30 @@ import android.widget.SeekBar
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.core.view.ViewCompat
-import code.name.monkey.appthemehelper.ThemeStore
 import code.name.monkey.appthemehelper.util.ATHUtil
 import code.name.monkey.appthemehelper.util.ColorUtil
 import code.name.monkey.appthemehelper.util.MaterialValueHelper
 import code.name.monkey.retromusic.R
+import com.google.android.material.card.MaterialCardView
+import com.google.android.material.shape.CornerFamily
+import com.google.android.material.shape.MaterialShapeDrawable
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 
 
 object ViewUtil {
 
     const val RETRO_MUSIC_ANIM_TIME = 1000
+    fun cardViewTopCorners(cardView: MaterialCardView) {
+
+        val radius = PreferenceUtil.getInstance(cardView.context).dialogCorner
+        (cardView.background as? MaterialShapeDrawable).let {
+            it?.shapeAppearanceModel?.apply {
+                toBuilder()
+                        .setTopLeftCorner(CornerFamily.CUT, 10f)
+                        .build()
+            }
+        }
+    }
 
     fun createTextColorTransition(v: TextView, @ColorInt startColor: Int, @ColorInt endColor: Int): Animator {
         return createColorAnimator(v, "textColor", startColor, endColor)
@@ -67,7 +80,8 @@ object ViewUtil {
         progress.setColorFilter(newColor, PorterDuff.Mode.SRC_IN)
 
         val background = ld.findDrawableByLayerId(android.R.id.background)
-        background.setColorFilter(MaterialValueHelper.getPrimaryDisabledTextColor(progressSlider.context, ColorUtil.isColorLight(ThemeStore.primaryColor(progressSlider.context))), PorterDuff.Mode.SRC_IN)
+        val primaryColor = ATHUtil.resolveColor(progressSlider.context, R.attr.colorPrimary)
+        background.setColorFilter(MaterialValueHelper.getPrimaryDisabledTextColor(progressSlider.context, ColorUtil.isColorLight(primaryColor)), PorterDuff.Mode.SRC_IN)
 
         val secondaryProgress = ld.findDrawableByLayerId(android.R.id.secondaryProgress)
         secondaryProgress.setColorFilter(ColorUtil.withAlpha(newColor, 0.65f), PorterDuff.Mode.SRC_IN)
@@ -121,7 +135,7 @@ object ViewUtil {
         recyclerView.setPopupTextColor(MaterialValueHelper.getPrimaryTextColor(context, ColorUtil.isColorLight(accentColor)))
         recyclerView.setThumbColor(accentColor)
         recyclerView.setTrackColor(Color.TRANSPARENT)
-        recyclerView.setTrackColor(ColorUtil.withAlpha(ATHUtil.resolveColor(context, R.attr.colorControlNormal), 0.12f));
+        recyclerView.setTrackColor(ColorUtil.withAlpha(ATHUtil.resolveColor(context, R.attr.colorControlNormal), 0.12f))
 
     }
 

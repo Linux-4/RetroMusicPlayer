@@ -8,6 +8,7 @@ import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import code.name.monkey.appthemehelper.ThemeStore
+import code.name.monkey.appthemehelper.util.ATHUtil
 import code.name.monkey.appthemehelper.util.ColorUtil
 import code.name.monkey.retromusic.App
 import code.name.monkey.retromusic.R
@@ -54,7 +55,7 @@ class PlaylistDetailActivity : AbsSlidingMusicPanelActivity(), CabHolder, Playli
         setNavigationbarColorAuto()
         setTaskDescriptionColorAuto()
         setLightNavigationBar(true)
-        setLightStatusbar(ColorUtil.isColorLight(ThemeStore.primaryColor(this)))
+        setLightStatusbar(ColorUtil.isColorLight(ATHUtil.resolveColor(this, R.attr.colorPrimary)))
 
         toggleBottomNavigationView(true)
 
@@ -64,7 +65,7 @@ class PlaylistDetailActivity : AbsSlidingMusicPanelActivity(), CabHolder, Playli
             finish()
         }
 
-        App.musicComponent?.inject(this)
+        App.musicComponent.inject(this)
 
         playlistSongsPresenter.attachView(this)
 
@@ -81,7 +82,7 @@ class PlaylistDetailActivity : AbsSlidingMusicPanelActivity(), CabHolder, Playli
         recyclerView.layoutManager = LinearLayoutManager(this)
         if (playlist is AbsCustomPlaylist) {
             adapter = PlaylistSongAdapter(this, ArrayList(), R.layout.item_list, false, this)
-            recyclerView!!.adapter = adapter
+            recyclerView.adapter = adapter
         } else {
             recyclerViewDragDropManager = RecyclerViewDragDropManager()
             val animator = RefactoredDefaultItemAnimator()
@@ -100,7 +101,7 @@ class PlaylistDetailActivity : AbsSlidingMusicPanelActivity(), CabHolder, Playli
             recyclerView.adapter = wrappedAdapter
             recyclerView.itemAnimator = animator
 
-            recyclerViewDragDropManager!!.attachRecyclerView(recyclerView!!)
+            recyclerViewDragDropManager?.attachRecyclerView(recyclerView)
         }
         adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
             override fun onChanged() {
@@ -143,7 +144,7 @@ class PlaylistDetailActivity : AbsSlidingMusicPanelActivity(), CabHolder, Playli
                 .setMenu(menuRes)
                 .setCloseDrawableRes(R.drawable.ic_close_white_24dp)
                 .setBackgroundColor(
-                        RetroColorUtil.shiftBackgroundColorForLightText(ThemeStore.primaryColor(this)))
+                        RetroColorUtil.shiftBackgroundColorForLightText(ATHUtil.resolveColor(this, R.attr.colorPrimary)))
                 .start(callback)
         return cab!!
     }
@@ -182,6 +183,7 @@ class PlaylistDetailActivity : AbsSlidingMusicPanelActivity(), CabHolder, Playli
     }
 
     private fun checkIsEmpty() {
+
         empty.visibility = if (adapter.itemCount == 0) View.VISIBLE else View.GONE
         emptyText.visibility = if (adapter.itemCount == 0) View.VISIBLE else View.GONE
     }

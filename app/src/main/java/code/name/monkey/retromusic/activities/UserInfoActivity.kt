@@ -16,6 +16,7 @@ import android.text.TextUtils
 import android.view.MenuItem
 import android.widget.Toast
 import code.name.monkey.appthemehelper.ThemeStore
+import code.name.monkey.appthemehelper.util.ATHUtil
 import code.name.monkey.appthemehelper.util.ColorUtil
 import code.name.monkey.appthemehelper.util.MaterialUtil
 import code.name.monkey.appthemehelper.util.MaterialValueHelper
@@ -28,6 +29,7 @@ import code.name.monkey.retromusic.extensions.applyToolbar
 import code.name.monkey.retromusic.util.Compressor
 import code.name.monkey.retromusic.util.ImageUtil.getResizedBitmap
 import code.name.monkey.retromusic.util.PreferenceUtil
+import com.afollestad.materialdialogs.LayoutMode
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.bottomsheets.BottomSheet
 import com.afollestad.materialdialogs.list.listItems
@@ -63,7 +65,7 @@ class UserInfoActivity : AbsBaseActivity() {
             loadBannerFromStorage(PreferenceUtil.getInstance(this).bannerImage)
         }
         userImage.setOnClickListener {
-            MaterialDialog(this, BottomSheet()).show {
+            MaterialDialog(this, BottomSheet(LayoutMode.WRAP_CONTENT)).show {
                 title(text = getString(R.string.set_photo))
                 listItems(items = listOf(getString(R.string.new_profile_photo), getString(R.string.remove_profile_photo))) { _, position, _ ->
                     when (position) {
@@ -108,13 +110,13 @@ class UserInfoActivity : AbsBaseActivity() {
     }
 
     private fun setupToolbar() {
-        val primaryColor = ThemeStore.primaryColor(this)
+        val primaryColor = ATHUtil.resolveColor(this, R.attr.colorPrimary)
         applyToolbar(toolbar)
         appBarLayout.setBackgroundColor(primaryColor)
     }
 
     private fun showBannerOptions() {
-        MaterialDialog(this, BottomSheet()).show {
+        MaterialDialog(this, BottomSheet(LayoutMode.WRAP_CONTENT)).show {
             title(R.string.select_banner_photo)
             listItems(items = listOf(getString(R.string.new_banner_photo), getString(R.string.remove_banner_photo)))
             { _, position, _ ->
