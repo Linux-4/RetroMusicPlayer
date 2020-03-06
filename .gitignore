@@ -44,3 +44,5 @@ app/src/debug/
 app/src/font/
 
 keystore.properties
+app/src/debug/ 
+/app/nofont/

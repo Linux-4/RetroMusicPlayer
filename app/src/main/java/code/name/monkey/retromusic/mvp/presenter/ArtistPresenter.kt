@@ -14,7 +14,8 @@
 
 package code.name.monkey.retromusic.mvp.presenter
 
-import code.name.monkey.retromusic.Result
+import code.name.monkey.retromusic.Result.Error
+import code.name.monkey.retromusic.Result.Success
 import code.name.monkey.retromusic.model.Artist
 import code.name.monkey.retromusic.mvp.BaseView
 import code.name.monkey.retromusic.mvp.Presenter
@@ -25,7 +26,7 @@ import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
 interface ArtistsView : BaseView {
-    fun artists(artists: ArrayList<Artist>)
+    fun artists(artists: List<Artist>)
 }
 
 interface ArtistsPresenter : Presenter<ArtistsView> {
@@ -33,8 +34,9 @@ interface ArtistsPresenter : Presenter<ArtistsView> {
     fun loadArtists()
 
     class ArtistsPresenterImpl @Inject constructor(
-            private val repository: Repository
+        private val repository: Repository
     ) : PresenterImpl<ArtistsView>(), ArtistsPresenter, CoroutineScope {
+
         private val job = Job()
 
         override val coroutineContext: CoroutineContext
@@ -48,10 +50,8 @@ interface ArtistsPresenter : Presenter<ArtistsView> {
         override fun loadArtists() {
             launch {
                 when (val result = repository.allArtists()) {
-                    is Result.Success -> withContext(Dispatchers.Main) {
-                        view?.artists(result.data)
-                    }
-                    is Result.Error -> withContext(Dispatchers.Main) { view?.showEmptyView() }
+                    is Success -> withContext(Dispatchers.Main) { view?.artists(result.data) }
+                    is Error -> withContext(Dispatchers.Main) { view?.showEmptyView() }
                 }
             }
         }

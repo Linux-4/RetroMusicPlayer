@@ -16,8 +16,8 @@ package code.name.monkey.retromusic.providers.interfaces
 
 import code.name.monkey.retromusic.Result
 import code.name.monkey.retromusic.model.*
+import code.name.monkey.retromusic.rest.model.LastFmAlbum
 import code.name.monkey.retromusic.rest.model.LastFmArtist
-import io.reactivex.Observable
 
 /**
  * Created by hemanths on 11/08/17.
@@ -26,6 +26,8 @@ import io.reactivex.Observable
 interface Repository {
 
     suspend fun allAlbums(): Result<ArrayList<Album>>
+
+    suspend fun albumById(albumId: Int): Result<Album>
 
     suspend fun allSongs(): Result<ArrayList<Song>>
 
@@ -51,47 +53,9 @@ interface Repository {
 
     suspend fun favoritePlaylist(): Result<Home>
 
-    val allSongsFlowable: Observable<ArrayList<Song>>
+    suspend fun artistInfo(name: String, lang: String?, cache: String?): Result<LastFmArtist>
 
-    val suggestionSongsFlowable: Observable<ArrayList<Song>>
+    suspend fun albumInfo(artist: String, album: String): Result<LastFmAlbum>
 
-    val allAlbumsFlowable: Observable<ArrayList<Album>>
-
-    val recentAlbumsFlowable: Observable<ArrayList<Album>>
-
-    val topAlbumsFlowable: Observable<ArrayList<Album>>
-
-    val allArtistsFlowable: Observable<ArrayList<Artist>>
-
-    val recentArtistsFlowable: Observable<ArrayList<Artist>>
-
-    val topArtistsFlowable: Observable<ArrayList<Artist>>
-
-    val allPlaylistsFlowable: Observable<ArrayList<Playlist>>
-
-    val allGenresFlowable: Observable<ArrayList<Genre>>
-
-    fun getSongFlowable(id: Int): Observable<Song>
-
-    fun getSong(id: Int): Song
-
-    fun getAlbumFlowable(albumId: Int): Observable<Album>
-
-    fun getAlbum(albumId: Int): Album
-
-    fun getArtistByIdFlowable(artistId: Int): Observable<Artist>
-
-    fun getArtistById(artistId: Long): Artist
-
-    fun getPlaylistSongsFlowable(playlist: Playlist): Observable<ArrayList<Song>>
-
-    fun getGenreFlowable(genreId: Int): Observable<ArrayList<Song>>
-
-
-    val favoritePlaylistFlowable: Observable<ArrayList<Playlist>>
-
-
-    fun artistInfoFloable(name: String,
-                          lang: String?,
-                          cache: String?): Observable<LastFmArtist>
+    suspend fun artistById(artistId: Int): Result<Artist>
 }

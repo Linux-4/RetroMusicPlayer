@@ -6,10 +6,16 @@ import android.util.Log
 import android.view.MenuItem
 import code.name.monkey.appthemehelper.ThemeStore
 import code.name.monkey.appthemehelper.util.ATHUtil
+import code.name.monkey.appthemehelper.util.MaterialUtil
 import code.name.monkey.appthemehelper.util.TintHelper
+import code.name.monkey.appthemehelper.util.ToolbarContentTintHelper
+import code.name.monkey.retromusic.BuildConfig
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.activities.base.AbsBaseActivity
-import code.name.monkey.retromusic.extensions.applyToolbar
+import code.name.monkey.retromusic.dialogs.UpiPaymentBottomSheetDialogFragment
+import code.name.monkey.retromusic.extensions.textColorPrimary
+import code.name.monkey.retromusic.extensions.textColorSecondary
+import kotlinx.android.synthetic.main.activity_about.toolbar
 import kotlinx.android.synthetic.main.activity_donation.*
 
 class SupportDevelopmentActivity : AbsBaseActivity() {
@@ -37,7 +43,7 @@ class SupportDevelopmentActivity : AbsBaseActivity() {
         setContentView(R.layout.activity_donation)
 
         setStatusbarColorAuto()
-        setNavigationBarColorPrimary()
+        setNavigationbarColorAuto()
         setTaskDescriptionColorAuto()
         setLightNavigationBar(true)
 
@@ -45,12 +51,21 @@ class SupportDevelopmentActivity : AbsBaseActivity() {
 
         TintHelper.setTint(progress, ThemeStore.accentColor(this))
         donation.setTextColor(ThemeStore.accentColor(this))
+
+        MaterialUtil.setTint(upiClick)
+        upiClick.setOnClickListener {
+            UpiPaymentBottomSheetDialogFragment().show(
+                supportFragmentManager,
+                UpiPaymentBottomSheetDialogFragment.TAG
+            )
+        }
     }
 
     private fun setupToolbar() {
-        val primaryColor = ATHUtil.resolveColor(this, R.attr.colorPrimary)
-        appBarLayout.setBackgroundColor(primaryColor)
-        applyToolbar(toolbar)
+        val toolbarColor = ATHUtil.resolveColor(this, R.attr.colorSurface)
+        toolbar.setBackgroundColor(toolbarColor)
+        ToolbarContentTintHelper.colorBackButton(toolbar)
+        setSupportActionBar(toolbar)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -59,5 +74,9 @@ class SupportDevelopmentActivity : AbsBaseActivity() {
             // Process based on the data in response.
             Log.d("result", data!!.getStringExtra("Status"))
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
     }
 }

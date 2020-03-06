@@ -24,7 +24,6 @@ class PlainPlayerFragment : AbsPlayerFragment() {
     override val paletteColor: Int
         get() = lastColor
 
-
     override fun onPlayingMetaChanged() {
         super.onPlayingMetaChanged()
         updateSong()
@@ -41,8 +40,10 @@ class PlainPlayerFragment : AbsPlayerFragment() {
         updateSong()
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.fragment_plain_player, container, false)
     }
 
@@ -51,7 +52,11 @@ class PlainPlayerFragment : AbsPlayerFragment() {
             inflateMenu(R.menu.menu_player)
             setNavigationOnClickListener { requireActivity().onBackPressed() }
             setOnMenuItemClickListener(this@PlainPlayerFragment)
-            ToolbarContentTintHelper.colorizeToolbar(this, ATHUtil.resolveColor(context, R.attr.iconColor), activity)
+            ToolbarContentTintHelper.colorizeToolbar(
+                this,
+                ATHUtil.resolveColor(requireContext(), R.attr.colorControlNormal),
+                requireActivity()
+            )
         }
     }
 
@@ -64,8 +69,10 @@ class PlainPlayerFragment : AbsPlayerFragment() {
     }
 
     private fun setUpSubFragments() {
-        plainPlaybackControlsFragment = childFragmentManager.findFragmentById(R.id.playbackControlsFragment) as PlainPlaybackControlsFragment
-        val playerAlbumCoverFragment = childFragmentManager.findFragmentById(R.id.playerAlbumCoverFragment) as PlayerAlbumCoverFragment
+        plainPlaybackControlsFragment =
+            childFragmentManager.findFragmentById(R.id.playbackControlsFragment) as PlainPlaybackControlsFragment
+        val playerAlbumCoverFragment =
+            childFragmentManager.findFragmentById(R.id.playerAlbumCoverFragment) as PlayerAlbumCoverFragment
         playerAlbumCoverFragment.setCallbacks(this)
     }
 
@@ -83,14 +90,18 @@ class PlainPlayerFragment : AbsPlayerFragment() {
     }
 
     override fun toolbarIconColor(): Int {
-        return ATHUtil.resolveColor(requireContext(), R.attr.iconColor)
+        return ATHUtil.resolveColor(requireContext(), R.attr.colorControlNormal)
     }
 
     override fun onColorChanged(color: Int) {
         plainPlaybackControlsFragment.setDark(color)
         lastColor = color
         callbacks!!.onPaletteColorChanged()
-        ToolbarContentTintHelper.colorizeToolbar(playerToolbar, ATHUtil.resolveColor(requireContext(), R.attr.iconColor), activity)
+        ToolbarContentTintHelper.colorizeToolbar(
+            playerToolbar,
+            ATHUtil.resolveColor(requireContext(), R.attr.colorControlNormal),
+            requireActivity()
+        )
     }
 
     override fun onFavoriteToggled() {

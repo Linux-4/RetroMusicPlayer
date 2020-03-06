@@ -25,7 +25,8 @@
             android:singleLine="true"
             android:textColor="?colorOnSecondary"
             android:textSize="12sp"
-            tools:ignore="RtlHardcoded,RtlSymmetry" />
+            tools:ignore="RtlHardcoded,RtlSymmetry"
+            tools:text="00:00" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/songTotalTime"
@@ -37,7 +38,8 @@
             android:singleLine="true"
             android:textColor="?colorOnSecondary"
             android:textSize="12sp"
-            tools:ignore="RtlHardcoded,RtlSymmetry" />
+            tools:ignore="RtlHardcoded,RtlSymmetry"
+            tools:text="00:00" />
 
         <androidx.appcompat.widget.AppCompatSeekBar
             android:id="@+id/progressSlider"
@@ -116,6 +118,17 @@
                 android:scrollHorizontally="true"
                 android:singleLine="true"
                 android:textStyle="bold"
+                tools:text="@tools:sample/lorem/random" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/songInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:paddingTop="4dp"
+                android:textSize="12sp"
                 tools:text="@tools:sample/lorem/random" />
         </LinearLayout>
     </LinearLayout>

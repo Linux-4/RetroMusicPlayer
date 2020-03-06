@@ -22,30 +22,29 @@ import code.name.monkey.retromusic.dagger.DaggerMusicComponent
 import code.name.monkey.retromusic.dagger.MusicComponent
 import code.name.monkey.retromusic.dagger.module.AppModule
 
-
 class App : MultiDexApplication() {
 
     override fun onCreate() {
-       /* if (MissingSplitsManagerFactory.create(this).disableAppIfMissingRequiredSplits()) {
-            return
-        }*/
         super.onCreate()
         instance = this
-        musicComponent = DaggerMusicComponent.builder()
-                .appModule(AppModule(this))
-                .build()
+        musicComponent = initDagger(this)
 
         // default theme
         if (!ThemeStore.isConfigured(this, 3)) {
             ThemeStore.editTheme(this)
-                    .accentColorRes(R.color.md_green_A200)
-                    .coloredNavigationBar(true)
-                    .commit()
+                .accentColorRes(R.color.md_deep_purple_A200)
+                .coloredNavigationBar(true)
+                .commit()
         }
 
         if (VersionUtils.hasNougatMR())
             DynamicShortcutManager(this).initDynamicShortcuts();
     }
+
+    private fun initDagger(app: App): MusicComponent =
+        DaggerMusicComponent.builder()
+            .appModule(AppModule(app))
+            .build()
 
     override fun onTerminate() {
         super.onTerminate()
@@ -65,6 +64,5 @@ class App : MultiDexApplication() {
         lateinit var musicComponent: MusicComponent
 
         const val PRO_VERSION_PRODUCT_ID = "pro_version"
-
     }
 }

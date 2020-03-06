@@ -29,6 +29,7 @@ import kotlin.coroutines.CoroutineContext
  */
 
 interface SearchView : BaseView {
+
     fun showData(data: MutableList<Any>)
 }
 
@@ -37,7 +38,7 @@ interface SearchPresenter : Presenter<SearchView> {
     fun search(query: String?)
 
     class SearchPresenterImpl @Inject constructor(
-            private val repository: Repository
+        private val repository: Repository
     ) : PresenterImpl<SearchView>(), SearchPresenter, CoroutineScope {
 
         override val coroutineContext: CoroutineContext
@@ -53,9 +54,7 @@ interface SearchPresenter : Presenter<SearchView> {
         override fun search(query: String?) {
             launch {
                 when (val result = repository.search(query)) {
-                    is Success -> withContext(Dispatchers.Main) {
-                        view?.showData(result.data)
-                    }
+                    is Success -> withContext(Dispatchers.Main) { view?.showData(result.data) }
                     is Error -> withContext(Dispatchers.Main) { view?.showEmptyView() }
                 }
             }

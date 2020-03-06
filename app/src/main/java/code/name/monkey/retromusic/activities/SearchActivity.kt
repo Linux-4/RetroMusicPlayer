@@ -16,6 +16,7 @@ import android.widget.Toast
 import androidx.appcompat.widget.SearchView.OnQueryTextListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.transition.TransitionManager
 import code.name.monkey.appthemehelper.ThemeStore
 import code.name.monkey.appthemehelper.util.ATHUtil
 import code.name.monkey.appthemehelper.util.ColorUtil
@@ -26,12 +27,14 @@ import code.name.monkey.retromusic.activities.base.AbsMusicServiceActivity
 import code.name.monkey.retromusic.adapter.SearchAdapter
 import code.name.monkey.retromusic.mvp.presenter.SearchPresenter
 import code.name.monkey.retromusic.mvp.presenter.SearchView
-import code.name.monkey.retromusic.util.RetroColorUtil
 import code.name.monkey.retromusic.util.RetroUtil
+import com.google.android.material.textfield.TextInputEditText
 import kotlinx.android.synthetic.main.activity_search.*
 import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
+import kotlin.collections.MutableList
+import kotlin.collections.emptyList
 
 class SearchActivity : AbsMusicServiceActivity(), OnQueryTextListener, TextWatcher, SearchView {
     @Inject
@@ -44,13 +47,13 @@ class SearchActivity : AbsMusicServiceActivity(), OnQueryTextListener, TextWatch
         setDrawUnderStatusBar()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
-        App.musicComponent.inject(this)
-        searchPresenter.attachView(this)
-
         setStatusbarColorAuto()
-        setNavigationBarColorPrimary()
+        setNavigationbarColorAuto()
         setTaskDescriptionColorAuto()
         setLightNavigationBar(true)
+
+        App.musicComponent.inject(this)
+        searchPresenter.attachView(this)
 
         setupRecyclerView()
         setUpToolBar()
@@ -62,8 +65,9 @@ class SearchActivity : AbsMusicServiceActivity(), OnQueryTextListener, TextWatch
 
         back.setOnClickListener { onBackPressed() }
         voiceSearch.setOnClickListener { startMicSearch() }
-
-        searchContainer.setCardBackgroundColor(RetroColorUtil.toolbarColor(this))
+        clearText.setOnClickListener { searchView.clearText() }
+        searchContainer.backgroundTintList =
+            ColorStateList.valueOf(ATHUtil.resolveColor(this, R.attr.colorSurface))
 
         keyboardPopup.setOnClickListener {
             val inputManager = getSystemService(Service.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -71,19 +75,23 @@ class SearchActivity : AbsMusicServiceActivity(), OnQueryTextListener, TextWatch
         }
 
         keyboardPopup.backgroundTintList = ColorStateList.valueOf(ThemeStore.accentColor(this))
-        ColorStateList.valueOf(MaterialValueHelper.getPrimaryTextColor(this, ColorUtil.isColorLight(ThemeStore.accentColor(this)))).apply {
+        ColorStateList.valueOf(
+            MaterialValueHelper.getPrimaryTextColor(
+                this,
+                ColorUtil.isColorLight(ThemeStore.accentColor(this))
+            )
+        ).apply {
             keyboardPopup.setTextColor(this)
             keyboardPopup.iconTint = this
         }
         if (savedInstanceState != null) {
-            query = savedInstanceState.getString(QUERY);
+            query = savedInstanceState.getString(QUERY)
         }
-
     }
 
     private fun setupRecyclerView() {
         searchAdapter = SearchAdapter(this, emptyList())
-        searchAdapter!!.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+        searchAdapter?.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
             override fun onChanged() {
                 super.onChanged()
                 empty.visibility = if (searchAdapter!!.itemCount < 1) View.VISIBLE else View.GONE
@@ -121,13 +129,13 @@ class SearchActivity : AbsMusicServiceActivity(), OnQueryTextListener, TextWatch
 
     private fun setUpToolBar() {
         title = null
-        appBarLayout.setBackgroundColor(ATHUtil.resolveColor(this, R.attr.colorPrimary))
     }
-
 
     private fun search(query: String) {
         this.query = query
+        TransitionManager.beginDelayedTransition(appBarLayout)
         voiceSearch.visibility = if (query.isNotEmpty()) View.GONE else View.VISIBLE
+        clearText.visibility = if (query.isNotEmpty()) View.VISIBLE else View.GONE
         searchPresenter.search(query)
     }
 
@@ -166,7 +174,8 @@ class SearchActivity : AbsMusicServiceActivity(), OnQueryTextListener, TextWatch
         when (requestCode) {
             REQ_CODE_SPEECH_INPUT -> {
                 if (resultCode == Activity.RESULT_OK && null != data) {
-                    val result: ArrayList<String>? = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                    val result: ArrayList<String>? =
+                        data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                     query = result?.get(0)
                     searchView.setText(query, BufferType.EDITABLE)
                     searchPresenter.search(query!!)
@@ -177,20 +186,22 @@ class SearchActivity : AbsMusicServiceActivity(), OnQueryTextListener, TextWatch
 
     private fun startMicSearch() {
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+        intent.putExtra(
+            RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+        )
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.speech_prompt))
         try {
             startActivityForResult(intent, REQ_CODE_SPEECH_INPUT)
         } catch (e: ActivityNotFoundException) {
             e.printStackTrace()
-            Toast.makeText(this, getString(R.string.speech_not_supported), Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.speech_not_supported), Toast.LENGTH_SHORT)
+                .show()
         }
-
     }
 
     override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
-
     }
 
     override fun onTextChanged(newText: CharSequence, start: Int, before: Int, count: Int) {
@@ -198,7 +209,6 @@ class SearchActivity : AbsMusicServiceActivity(), OnQueryTextListener, TextWatch
     }
 
     override fun afterTextChanged(s: Editable) {
-
     }
 
     companion object {
@@ -209,4 +219,8 @@ class SearchActivity : AbsMusicServiceActivity(), OnQueryTextListener, TextWatch
 
         private const val REQ_CODE_SPEECH_INPUT = 9002
     }
+}
+
+fun TextInputEditText.clearText() {
+    text = null
 }
